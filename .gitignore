@@ -1,0 +1,6 @@
+dump_files/
+images/
+*.out
+*.jpg
+*.txt
+CMakeLists.txt
