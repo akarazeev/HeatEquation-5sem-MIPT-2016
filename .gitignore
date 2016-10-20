@@ -1,4 +1,5 @@
 dump_files/
+.DS_Store
 images/
 *.out
 *.jpg
