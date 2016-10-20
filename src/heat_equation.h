@@ -94,7 +94,7 @@ static inline void init_from_func() {
 static inline void init_from_file() {
     puts("> init_from_file");
 
-    FILE* f = fopen("hnu.txt", "r");
+    FILE* f = fopen("../res/hnu.txt", "r");
     assert(f != NULL);
     fscanf(f, "%d", &size);
     printf("size: %d\n", size);
@@ -178,7 +178,7 @@ static inline void clean_dumps() {
     puts("> cleand_dumps");
     DIR* dp;
     struct dirent* ep;
-    char* path = "dump_files/";
+    char* path = "../dump_files/";
     
     dp = opendir (path);
     if (dp != NULL) {
@@ -202,7 +202,7 @@ static inline void dump_to_file(int cur_iteration) {
     assert(ceil(log10(cur_iteration)) < 10);
 
     char cur_file[30];
-    sprintf(cur_file, "dump_files/dump_%03d.txt", (int) cur_iteration / period);
+    sprintf(cur_file, "../dump_files/dump_%03d.txt", (int) cur_iteration / period);
 
     FILE* f = fopen(cur_file, "w");
     assert(f != NULL);
