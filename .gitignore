@@ -1,8 +1,9 @@
 dump_files/
+downloads/
 .DS_Store
 images/
 *.out
 *.jpg
-*.txt
 .idea/
+.ipynb_checkpoints/
 CMakeLists.txt
