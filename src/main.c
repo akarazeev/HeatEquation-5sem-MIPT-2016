@@ -34,8 +34,8 @@
 
 int main(int argc, char** argv) {
     int i;
-
     clean_dumps();
+
     // init_from_file();
     init_from_func();
     for (i = 1; i < iterations + 1; ++i) {

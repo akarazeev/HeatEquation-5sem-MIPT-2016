@@ -3,7 +3,7 @@ CFLAGS = -I/usr/local/opt/llvm/include -fopenmp
 LDFLAGS = -L/usr/local/opt/llvm/lib
 
 all:
-	$(C) $(CFLAGS) main.c $(LDFLAGS)
+	$(C) $(CFLAGS) ./src/main.c $(LDFLAGS) -o a.out
 
 #%.o: %.c %.h
 #    $(CC) $(CFLAGS) -c $< -o $@

@@ -25,6 +25,8 @@ double** grid;
 double** grid_old;
 int size = 80;
 double cur_time = 0.0;
+double (*border_functions[3]) (int x, int y, double t);
+double (*heat_functions[2]) (int x, int y, double t);
 
 const double dt = 1;
 const double a_squared = 0.1;
@@ -46,24 +48,17 @@ static inline void clean_dumps();
 static inline void free_all();
 static inline void dump_to_file(int cur_iteration);
 
+#include "border_functions.h"
+#include "heat_functions.h"
+
 /* -- Implementation -- */
 
 static inline double heat(int x, int y, double t) {
-    if ((x < 20 && x > 17) || (x < 60 && x > 57)) {
-        return -1;
-    } else {
-        return 0;
-    }
+    return (*heat_functions[1]) (x, y, t);
 }
 
 static inline double border(int x, int y, double t) {
-    if (y <= 0) {
-        return 50.0 * exp(-pow(1.0 - (2.0 * (float)x/(float)size),2)/0.5);
-        // return pow(fabs((size/2.0)-x), 1.3);
-        // return 3;
-    } else {
-        return 0;
-    }
+    return (*border_functions[2]) (x, y, t);
 }
 
 static inline double init(int x, int y) {
@@ -76,6 +71,13 @@ static inline double init(int x, int y) {
 
 static inline void init_from_func() {
     puts("> init_from_func");
+
+    border_functions[0] = border1;
+    border_functions[1] = border2;
+    border_functions[2] = border3;
+
+    heat_functions[0] = heat1;
+    heat_functions[1] = heat2;
 
     int i;
     grid = malloc(size * sizeof(double*));
@@ -94,7 +96,7 @@ static inline void init_from_func() {
 static inline void init_from_file() {
     puts("> init_from_file");
 
-    FILE* f = fopen("../res/hnu.txt", "r");
+    FILE* f = fopen("res/hnu.txt", "r");
     assert(f != NULL);
     fscanf(f, "%d", &size);
     printf("size: %d\n", size);
@@ -175,10 +177,10 @@ static inline void free_all() {
 }
 
 static inline void clean_dumps() {
-    puts("> cleand_dumps");
+    puts("> clean_dumps");
     DIR* dp;
     struct dirent* ep;
-    char* path = "../dump_files/";
+    char* path = "dump_files/";
     
     dp = opendir (path);
     if (dp != NULL) {
@@ -202,7 +204,7 @@ static inline void dump_to_file(int cur_iteration) {
     assert(ceil(log10(cur_iteration)) < 10);
 
     char cur_file[30];
-    sprintf(cur_file, "../dump_files/dump_%03d.txt", (int) cur_iteration / period);
+    sprintf(cur_file, "dump_files/dump_%03d.txt", (int) cur_iteration / period);
 
     FILE* f = fopen(cur_file, "w");
     assert(f != NULL);
