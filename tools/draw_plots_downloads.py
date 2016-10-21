@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-path_txt = os.path.dirname(__file__) + "/../downloads/dump_files/"
+path_txt = os.path.dirname(__file__) + "/../downloads/"
 path_img = os.path.dirname(__file__) + "/../images/"
 
 # plt.figure(figsize=(5,5))

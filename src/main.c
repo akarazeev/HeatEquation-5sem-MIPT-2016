@@ -36,8 +36,8 @@ int main(int argc, char** argv) {
     int i;
     clean_dumps();
 
-    // init_from_file();
-    init_from_func();
+    init_from_file();
+    // init_from_func();
     for (i = 1; i < iterations + 1; ++i) {
         if (i % period == 0) {
             dump_to_file(i);

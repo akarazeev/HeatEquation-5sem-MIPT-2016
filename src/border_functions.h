@@ -16,11 +16,7 @@ static inline double border1(int x, int y, double t) {
 }
 
 static inline double border2(int x, int y, double t) {
-    if (y <= 0) {
-        return pow(fabs((size/2.0)-x), 1.3);
-    } else {
-        return 0;
-    }
+    return 100;
 }
 
 static inline double border3(int x, int y, double t) {

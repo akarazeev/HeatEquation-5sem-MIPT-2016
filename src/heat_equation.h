@@ -23,17 +23,21 @@
 
 double** grid;
 double** grid_old;
-int size = 80;
-double cur_time = 0.0;
 double (*border_functions[3]) (int x, int y, double t);
 double (*heat_functions[2]) (int x, int y, double t);
 
-const double dt = 1;
+int dx;
+int dy;
+int size = -1;
+int period;
+int iterations;
+int border_number;
+int heat_number;
+double dt;
+char prefix[10];
+double cur_time = 0.0;
+
 const double a_squared = 0.1;
-const int dx = 1;
-const int dy = 1;
-const int period = 500;
-const int iterations = 10000;
 
 static inline double heat(int x, int y, double t);
 static inline double border(int x, int y, double t);
@@ -54,11 +58,11 @@ static inline void dump_to_file(int cur_iteration);
 /* -- Implementation -- */
 
 static inline double heat(int x, int y, double t) {
-    return (*heat_functions[1]) (x, y, t);
+    return (*heat_functions[heat_number]) (x, y, t);
 }
 
 static inline double border(int x, int y, double t) {
-    return (*border_functions[2]) (x, y, t);
+    return (*border_functions[border_number]) (x, y, t);
 }
 
 static inline double init(int x, int y) {
@@ -69,52 +73,106 @@ static inline double init(int x, int y) {
     }
 }
 
-static inline void init_from_func() {
-    puts("> init_from_func");
-
+static inline void fill_array_of_functions() {
     border_functions[0] = border1;
     border_functions[1] = border2;
     border_functions[2] = border3;
 
     heat_functions[0] = heat1;
     heat_functions[1] = heat2;
+}
 
-    int i;
-    grid = malloc(size * sizeof(double*));
-    grid_old = malloc(size * sizeof(double*));
-    for (i = 0; i < size; ++i) {
-        grid[i] = malloc(size * sizeof(double));
-        grid_old[i] = malloc(size * sizeof(double));
-        int j;
-        for (j = 0; j < size; ++j) {
-            grid[i][j] = init(i, j);
-            grid_old[i][j] = grid[i][j];
-        }
-    }
+static inline void init_from_func() {
+    // puts("> init_from_func");
+
+    // fill_array_of_functions();
+
+    // int i;
+    // grid = malloc(size * sizeof(double*));
+    // grid_old = malloc(size * sizeof(double*));
+    // for (i = 0; i < size; ++i) {
+    //     grid[i] = malloc(size * sizeof(double));
+    //     grid_old[i] = malloc(size * sizeof(double));
+    //     int j;
+    //     for (j = 0; j < size; ++j) {
+    //         grid[i][j] = init(i, j);
+    //         grid_old[i][j] = grid[i][j];
+    //     }
+    // }
 }
 
 static inline void init_from_file() {
-    puts("> init_from_file");
+    puts("> init_from_config");
 
-    FILE* f = fopen("res/hnu.txt", "r");
-    assert(f != NULL);
-    fscanf(f, "%d", &size);
-    printf("size: %d\n", size);
+    fill_array_of_functions();
 
-    int i;
-    grid = malloc(size * sizeof(double*));
-    grid_old = malloc(size * sizeof(double*));
-    for (i = 0; i < size; ++i) {
-        grid[i] = malloc(size * sizeof(double));
-        grid_old[i] = malloc(size * sizeof(double));
-        int j;
-        for (j = 0; j < size; ++j) {
-            double tmp;
-            fscanf(f, "%lf", &tmp);
-            grid[i][j] = tmp;
-            grid_old[i][j] = tmp;
+    FILE* f_config = fopen("res/config", "r");
+    assert(f_config != NULL);
+
+    fscanf(f_config, "%d %d", &dx, &dy);
+    fscanf(f_config, "%lf", &dt);
+    fscanf(f_config, "%d", &iterations);
+    fscanf(f_config, "%d", &period);
+    assert(period < iterations);
+
+    char init_file_name[20];
+    fscanf(f_config, "%s", init_file_name);
+    fscanf(f_config, "%s", prefix);
+    fscanf(f_config, "%d", &border_number);
+    fscanf(f_config, "%d", &heat_number);
+    heat_number--;
+    border_number--;
+
+    if (strcmp(init_file_name, "-")) {
+        puts("> fill_from_file");
+
+        char init_file_path[30];
+        strcpy(init_file_path, "res/");
+        strcat(init_file_path, init_file_name);
+
+        FILE* f_init = fopen(init_file_path, "r");
+        assert(f_init != NULL);
+        fscanf(f_init, "%d", &size);
+
+        int i;
+        grid = malloc(size * sizeof(double*));
+        grid_old = malloc(size * sizeof(double*));
+        for (i = 0; i < size; ++i) {
+            grid[i] = malloc(size * sizeof(double));
+            grid_old[i] = malloc(size * sizeof(double));
+            int j;
+            for (j = 0; j < size; ++j) {
+                double tmp;
+                fscanf(f_init, "%lf", &tmp);
+                grid[i][j] = tmp;
+                grid_old[i][j] = tmp;
+            }
+        }
+    } else {
+        puts("> fill_with_func");
+
+        size = 80;
+        assert(size > 0);
+
+        int i;
+        grid = malloc(size * sizeof(double*));
+        grid_old = malloc(size * sizeof(double*));
+        for (i = 0; i < size; ++i) {
+            grid[i] = malloc(size * sizeof(double));
+            grid_old[i] = malloc(size * sizeof(double));
+            int j;
+            for (j = 0; j < size; ++j) {
+                grid[i][j] = init(i, j);
+                grid_old[i][j] = grid[i][j];
+            }
         }
     }
+
+    puts("+------*------+");
+    printf("| Iterations: %d\n", iterations);
+    printf("| Period: %d\n", period);
+    printf("| Size: %d\n", size);
+    puts("+------*------+");
 }
 
 static inline double sec_deriv_x(int x, int y, double t) {
@@ -203,10 +261,18 @@ static inline void dump_to_file(int cur_iteration) {
     printf("> dump_to_file #%d/%d\n", cur_iteration, iterations);
     assert(ceil(log10(cur_iteration)) < 10);
 
-    char cur_file[30];
-    sprintf(cur_file, "dump_files/dump_%03d.txt", (int) cur_iteration / period);
+    char cur_file_name[30];
+    char file_path[50];
 
-    FILE* f = fopen(cur_file, "w");
+    strcpy(file_path, "dump_files/");
+    strcat(file_path, prefix);
+
+    sprintf(cur_file_name, "_%03d", (int) cur_iteration / period);
+    strcat(cur_file_name, ".txt");
+
+    strcat(file_path, cur_file_name);
+
+    FILE* f = fopen(file_path, "w");
     assert(f != NULL);
 
     fprintf(f, "%d\n", size);
