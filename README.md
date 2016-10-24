@@ -8,11 +8,25 @@ There will be instructions soon...
 
 ***
 
-### Heat functions:
-1. Two plates
-2. Just zero
+### Structure of config file:
+1. dx, dy
+2. dt
+3. period
+4. file with initial matrix OR size of matrix (one number)
+5. <prefix> of dump files: "<prefix>_iteration.txt"
+6. number of _border_ function
+7. number of _heat_ function
+8. number of threads
 
 ### Border functions:
 1. Left side heating
 2. Unifrom heating around the perimeter
 3. Uniform heating of the left side
+4. Just zero
+5. Continuous ...
+
+### Heat functions:
+1. Two plates
+2. Just zero
+3. Negative semicircle
+4. Negative circle at the center

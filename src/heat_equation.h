@@ -23,8 +23,8 @@
 
 double** grid;
 double** grid_old;
-double (*border_functions[3]) (int x, int y, double t);
-double (*heat_functions[2]) (int x, int y, double t);
+double (*border_functions[5]) (int x, int y, double t);
+double (*heat_functions[4]) (int x, int y, double t);
 
 int dx;
 int dy;
@@ -66,20 +66,25 @@ static inline double border(int x, int y, double t) {
 }
 
 static inline double init(int x, int y) {
-    if (pow(x - (size/2.0), 2) + pow(y - (size/2.0), 2) < pow(size/5.0, 2)) {
-        return 0;
-    } else {
-        return 1;
-    }
+    // if (pow(x - (size/2.0), 2) + pow(y - (size/2.0), 2) < pow(size/5.0, 2)) {
+    //     return 0;
+    // } else {
+    //     return 1;
+    // }
+    return 1;
 }
 
 static inline void fill_array_of_functions() {
     border_functions[0] = border1;
     border_functions[1] = border2;
     border_functions[2] = border3;
+    border_functions[3] = border4;
+    border_functions[4] = border5;
 
     heat_functions[0] = heat1;
     heat_functions[1] = heat2;
+    heat_functions[2] = heat3;
+    heat_functions[3] = heat4;
 }
 
 static inline void init_from_func() {
