@@ -41,6 +41,7 @@ int main(int argc, char** argv) {
     for (i = 1; i < iterations + 1; ++i) {
         if (i % period == 0) {
             dump_to_file(i);
+            mpi_dump(i);
         }
         next_age();
         // printf(">%d\n", i);

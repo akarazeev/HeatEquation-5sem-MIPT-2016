@@ -4,6 +4,14 @@
 
 ***
 
+#TODO:
+ - _heat_ and _border_ functions choose by name
+ - use iniparser to parse _config_ file
+ - use PATH_MAX to limit _prefix_ size
+ - try to READ NetCDF
+
+***
+
 There will be instructions soon...
 
 ***

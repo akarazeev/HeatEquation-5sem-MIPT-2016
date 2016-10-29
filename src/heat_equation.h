@@ -51,6 +51,7 @@ static inline void update_grid();
 static inline void clean_dumps();
 static inline void free_all();
 static inline void dump_to_file(int cur_iteration);
+static inline void mpi_dump(int cur_iteration);
 
 #include "border_functions.h"
 #include "heat_functions.h"
@@ -290,6 +291,21 @@ static inline void dump_to_file(int cur_iteration) {
     }
     
     fclose(f);
+}
+
+static inline void mpi_dump(int cur_iteration) {
+    MPI_Init(NULL, NULL);
+    // MPI_File_open(MPI_COMM_WORLD, "res/mpi.txt", MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fh0);
+    MPI_File cFile;
+    int rc = MPI_File_open(MPI_COMM_WORLD, "temp", MPI_MODE_RDWR | MPI_MODE_DELETE_ON_CLOSE | MPI_MODE_CREATE, MPI_INFO_NULL, &cFile);
+    if (rc) {
+        printf( "Unable to open file \"temp\"\n" );
+        fflush(stdout);
+    }
+    else {
+        MPI_File_close( &cFile );
+    }
+    MPI_Finalize();
 }
 
 #endif
