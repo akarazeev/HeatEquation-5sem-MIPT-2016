@@ -1,4 +1,5 @@
 dump_files/
+src/2d_heat_equation.c
 downloads/
 .DS_Store
 images/
