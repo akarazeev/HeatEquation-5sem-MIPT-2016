@@ -19,12 +19,13 @@ There will be instructions soon...
 ### Structure of config file:
 1. dx, dy
 2. dt
-3. period
-4. file with initial matrix OR size of matrix (one number)
-5. <prefix> of dump files: "<prefix>_iteration.txt"
-6. number of _border_ function
-7. number of _heat_ function
-8. number of threads
+3. total_iterations
+4. period
+5. file with initial matrix OR size of matrix (one number)
+6. <prefix> of dump files: "<prefix>_iteration.txt"
+7. number of _border_ function
+8. number of _heat_ function
+9. TODO: number of threads
 
 ### Border functions:
 1. Left side heating

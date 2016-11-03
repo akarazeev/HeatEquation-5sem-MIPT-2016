@@ -46,5 +46,7 @@ static inline double border5(int x, int y, double t) {
     } else if (x >= size) {
         assert(y >= 0 && y < size);
         return grid[size-1][y];
+    } else {
+        return 0;
     }
 }
