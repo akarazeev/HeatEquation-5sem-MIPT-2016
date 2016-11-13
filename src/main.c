@@ -157,7 +157,10 @@ static inline void free_master() {
 }
 
 static inline double heat(int x, int y, double t) {
-    return 1;
+    if (x == size / 2 && y == size / 2) {
+        // return -1;
+    }
+    return 0;
 }
 
 static inline double border(int x, int y, double t) {
@@ -168,31 +171,40 @@ static inline double sec_deriv_x(int x, int y, double t) {
 
     //FIXME: DO ot right!!
 
-    if (x + dx >= size) {
-        assert(x - dx >= 0);
-        return (border(x + dx, y, t) - (2.0 * grid[0][x][y]) + grid[0][x - dx][y]) / (2.0 * dx * dx);
-    } else if (x - dx < 0) {
-        assert(x + dx < size);
-        return (grid[0][x + dx][y] - (2.0 * grid[0][x][y]) + border(x - dx, y, t)) / (2.0 * dx * dx);
+    // if (x + dx >= size) {
+    //     assert(x - dx >= 0);
+    //     return (border(x + dx, y, t) - (2.0 * grid[0][x][y]) + grid[0][x - dx][y]) / (2.0 * dx * dx);
+    // } else if (x - dx < 0) {
+    //     assert(x + dx < size);
+    //     return (grid[0][x + dx][y] - (2.0 * grid[0][x][y]) + border(x - dx, y, t)) / (2.0 * dx * dx);
+    // } else {
+    if (x + dx >= size || x - dx < 0) {
+        return 0;
     } else {
+        if (cur_iter == 1) {
+            printf("-at x and y-> %f\n", grid[0][x][y]);
+            printf("-----> %f\n", (grid[0][x + dx][y] - (2.0 * grid[0][x][y]) + grid[0][x - dx][y]) / (2.0 * dx * dx));
+        }
         return (grid[0][x + dx][y] - (2.0 * grid[0][x][y]) + grid[0][x - dx][y]) / (2.0 * dx * dx);
     }
-    // return 0;
+    // }
+    // return 1;
 }
 
 static inline double sec_deriv_y(int x, int y, double t) {
-    if (y + dy >= size) {
-        assert(y - dy >= 0);
-        // printf("b1_ y: %d\n", y);
-        return (border(x, y + dy, t) - (2.0 * grid[0][x][y]) + grid[0][x][y - dy]) / (2.0 * dy * dy);
-    } else if (y - dy < 0) {
-        assert(y + dy < size);
-        // printf("b2_ y: %d\n", y);
-        return (grid[0][x][y + dy] - (2.0 * grid[0][x][y]) + border(x, y - dy, t)) / (2.0 * dy * dy);
-    } else {
-        // printf("y: %d\n", y);
-        return (grid[0][x][y + dy] - (2.0 * grid[0][x][y]) + grid[0][x][y - dy]) / (2.0 * dy * dy);
-    }
+    // if (y + dy >= size) {
+    //     assert(y - dy >= 0);
+    //     // printf("b1_ y: %d\n", y);
+    //     return (border(x, y + dy, t) - (2.0 * grid[0][x][y]) + grid[0][x][y - dy]) / (2.0 * dy * dy);
+    // } else if (y - dy < 0) {
+    //     assert(y + dy < size);
+    //     // printf("b2_ y: %d\n", y);
+    //     return (grid[0][x][y + dy] - (2.0 * grid[0][x][y]) + border(x, y - dy, t)) / (2.0 * dy * dy);
+    // } else {
+    //     // printf("y: %d\n", y);
+    //     return (grid[0][x][y + dy] - (2.0 * grid[0][x][y]) + grid[0][x][y - dy]) / (2.0 * dy * dy);
+    // }
+    return 0;
     // return 0;
 }
 
@@ -243,13 +255,17 @@ static inline void next_age() {
             grid[1][x][y] += dt * (heat(x, y, cur_time) +
                         (a_squared * (sec_deriv_y(x, y, cur_time) +
                         sec_deriv_x(x, y, cur_time))));
+            if (cur_iter == 1) {
+                printf(">  sec_deriv:%f\n", sec_deriv_x(x, y, cur_time));
+                printf(">> %f x:%d y:%d %d\n", grid[1][x][y], x, y, worker_number);
+            }
         }
     }
     update_grid();
 }
 
 int main(int argc, char** argv) {
-    int   i;          /* loop variable */
+    int i;          /* loop variable */
 
     MPI_Status status;
 
@@ -262,7 +278,7 @@ int main(int argc, char** argv) {
     numworkers = numtasks - 1;
 
     printf("%d %d\n", numtasks, taskid);
-    
+
     if (taskid == MASTER) {
 
         /* Master Code */
@@ -314,15 +330,18 @@ int main(int argc, char** argv) {
 
         for (i = 1; i <= numworkers; ++i) {
             MPI_Recv(&start_row, 1, MPI_INT,                                 i, END, MPI_COMM_WORLD, &status);
-            MPI_Recv(&number_rows, 1, MPI_INT,                               i, END, MPI_COMM_WORLD, &status);
-            MPI_Recv(&grid[1][start_row][0], size * number_rows, MPI_DOUBLE, i, END, MPI_COMM_WORLD, &status);
+            // MPI_Recv(&number_rows, 1, MPI_INT,                               i, END, MPI_COMM_WORLD, &status);
+            // MPI_Recv(&grid[1][start_row][0], size * number_rows, MPI_DOUBLE, i, END, MPI_COMM_WORLD, &status);
         }
 
         /* it's time to free master's grid */
+
         puts("lol");
         free_master();
 
         puts("> MASTER is DONE");
+
+        /* decode binary files into txt files */
 
         DIR *dp;
         struct dirent *ep;
@@ -403,36 +422,36 @@ int main(int argc, char** argv) {
                 // printf("> start_row1: %d\n", start_row);
                 // MPI_Send(&grid[0][start_row][0],   size, MPI_DOUBLE, nei1, NEI2, MPI_COMM_WORLD);
                 MPI_Send(&grid[0][start_row][0],   size, MPI_DOUBLE, nei1, cur_iter, MPI_COMM_WORLD);
+                MPI_Recv(&grid[0][start_row-1][0], size, MPI_DOUBLE, nei1, cur_iter, MPI_COMM_WORLD, &status);
                 // printf("> start_row11: %d\n", start_row);
                 // MPI_Recv(&grid[0][start_row-1][0], size, MPI_DOUBLE, nei1, NEI1, MPI_COMM_WORLD, &status);
-                MPI_Recv(&grid[0][start_row-1][0], size, MPI_DOUBLE, nei1, cur_iter, MPI_COMM_WORLD, &status);
             }
             // printf(" 2 %d taskid=%d", cur_iter, taskid);
             if (nei2 != NONE) {
                 // printf("> start_row2: %d\n", start_row);
                 // MPI_Send(&grid[0][start_row + number_rows - 1][0], size, MPI_DOUBLE, nei2, NEI1, MPI_COMM_WORLD);
                 MPI_Send(&grid[0][start_row + number_rows - 1][0], size, MPI_DOUBLE, nei2, cur_iter, MPI_COMM_WORLD);
+                MPI_Recv(&grid[0][start_row + number_rows][0],     size, MPI_DOUBLE, nei2, cur_iter, MPI_COMM_WORLD, &status);
                 // printf("> start_row22: %d\n", start_row);
                 // MPI_Recv(&grid[0][start_row + number_rows][0],     size, MPI_DOUBLE, nei2, NEI2, MPI_COMM_WORLD, &status);
-                MPI_Recv(&grid[0][start_row + number_rows][0],     size, MPI_DOUBLE, nei2, cur_iter, MPI_COMM_WORLD, &status);
             }
             // printf(" 3 %d taskid=%d", cur_iter, taskid);
 
             if (cur_iter % period == 0) {
+                // printf(">> %d A\n", worker_number);
                 dump_to_file(cur_iter, grid_type);
             }
 
             /* it's time for next age */
             next_age();
-
-            //TODO: add update
+            // printf(">> %d B\n", worker_number);
         }
 
         /* send back to master */
 
         MPI_Send(&start_row, 1, MPI_INT, MASTER, END, MPI_COMM_WORLD);
-        MPI_Send(&number_rows, 1, MPI_INT, MASTER, END, MPI_COMM_WORLD);
-        MPI_Send(&grid[1][start_row][0], size * number_rows, MPI_DOUBLE, MASTER, END, MPI_COMM_WORLD);
+        // MPI_Send(&number_rows, 1, MPI_INT, MASTER, END, MPI_COMM_WORLD);
+        // MPI_Send(&grid[1][start_row][0], size * number_rows, MPI_DOUBLE, MASTER, END, MPI_COMM_WORLD);
 
         /* it's time to free things up */
 

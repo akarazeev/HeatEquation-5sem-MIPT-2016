@@ -22,14 +22,14 @@ There will be instructions soon...
 3. total_iterations
 4. period
 5. file with initial matrix OR size of matrix (one number)
-6. <prefix> of dump files: "<prefix>_iteration.txt"
+6. <prefix> of dump files: "prefix_iteration.txt"
 7. number of _border_ function
 8. number of _heat_ function
 9. TODO: number of threads
 
 ### Border functions:
 1. Left side heating
-2. Unifrom heating around the perimeter
+2. Uniform heating around the perimeter
 3. Uniform heating of the left side
 4. Just zero
 5. Continuous ...

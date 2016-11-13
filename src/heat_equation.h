@@ -63,7 +63,11 @@ static inline double init(int x, int y) {
     // } else {
     //     return 1;
     // }
-    return 1;
+    if (x == 3 || x == 2) {
+        return 20;
+    } else {
+        return 10;
+    }
 }
 
 // static inline void fill_array_of_functions() {
