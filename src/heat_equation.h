@@ -26,20 +26,18 @@
 double   (*border_functions[5]) (int x, int y, double t);
 double   (*heat_functions[4]) (int x, int y, double t);
 
-int    dx;
-int    dy;
+// int    dx;
+// int    dy;
 int    border_number;
 int    heat_number;
 
-const double a_squared = 0.1;
-
-static inline double heat(int x, int y, double t);
-static inline double border(int x, int y, double t);
+// static inline double heat(int x, int y, double t);
+// static inline double border(int x, int y, double t);
 static inline double init(int x, int y);
 static inline void   init_from_config();
 static inline double sec_deriv_x(int x, int y, double t);
 static inline double sec_deriv_y(int x, int y, double t);
-static inline void   next_age();
+// static inline void   next_age();
 static inline void   update_grid();
 static inline void   clean_dumps();
 // static inline void   dump_to_file(int cur_iteration);
@@ -51,13 +49,13 @@ static inline int    is_number(char* str);
 
 /* -- Implementation -- */
 
-static inline double heat(int x, int y, double t) {
-    return (*heat_functions[heat_number]) (x, y, t);
-}
+// static inline double heat(int x, int y, double t) {
+//     return (*heat_functions[heat_number]) (x, y, t);
+// }
 
-static inline double border(int x, int y, double t) {
-    return (*border_functions[border_number]) (x, y, t);
-}
+// static inline double border(int x, int y, double t) {
+//     return (*border_functions[border_number]) (x, y, t);
+// }
 
 static inline double init(int x, int y) {
     // if (pow(x - (size/2.0), 2) + pow(y - (size/2.0), 2) < pow(size/5.0, 2)) {
@@ -116,12 +114,31 @@ static inline void init_from_config() {
         fscanf(f_init, "%d", &size);
 
         int i;
-        grid[0] = malloc(size * sizeof(double*));
-        grid[1] = malloc(size * sizeof(double*));
+        // grid[0] = malloc(size * sizeof(double*));
+        // grid[1] = malloc(size * sizeof(double*));
+
+        p = (double*) malloc(size * size * sizeof(double));
+        grid[0] = (double**) malloc(size * sizeof(double*));
+        grid[1] = (double**) malloc(size * sizeof(double*));
+        // int malloc2dchar(char ***array, int n, int m) {
+        //     /* allocate the n*m contiguous items */
+        //     char *p = (char *)malloc(n*m*sizeof(char));
+        //     if (!p) return -1;
+        //     /* allocate the row pointers into the memory */
+        //     (*array) = (char **)malloc(n*sizeof(char*));
+        //     if (!(*array)) {
+        //        free(p);
+        //        return -1;
+        //     }
+        //     /* set up the pointers into the contiguous memory */
+        //     for (int i=0; i<n; i++)
+        //        (*array)[i] = &(p[i*m]);
+        //     return 0;
+        // }
 
         for (i = 0; i < size; ++i) {
-            grid[0][i] = malloc(size * sizeof(double));
-            grid[1][i] = malloc(size * sizeof(double));
+            grid[0][i] = &(p[i * size]);
+            grid[1][i] = &(p[i * size]);
             int j;
             for (j = 0; j < size; ++j) {
                 double tmp;
@@ -136,17 +153,25 @@ static inline void init_from_config() {
         size = atoi(init_file_name);
         assert(size > 0);
 
+        int kekus = 12;
         int k;
-        grid[0] = malloc(size * sizeof(double*));
-        grid[1] = malloc(size * sizeof(double*));
+        // grid[0] = malloc(size * sizeof(double*));
+        // grid[1] = malloc(size * sizeof(double*));
+
+        p = (double*) malloc(size * size * sizeof(double));
+        grid[0] = (double**) malloc(size * sizeof(double*));
+        grid[1] = (double**) malloc(size * sizeof(double*));
 
         for (k = 0; k < size; ++k) {
-            grid[0][k] = malloc(size * sizeof(double));
-            grid[1][k] = malloc(size * sizeof(double));
+            // grid[0][k] = malloc(size * sizeof(double));
+            // grid[1][k] = malloc(size * sizeof(double));
+            grid[0][k] = &(p[k * size]);
+            grid[1][k] = &(p[k * size]);
             int j;
             for (j = 0; j < size; ++j) {
                 grid[0][k][j] = init(k, j);
                 grid[1][k][j] = grid[0][k][j];
+                // printf("pos: %d %d _ %f %f\n", k, j, grid[0][k][j], grid[1][k][j]);
             }
         }
     }
@@ -155,7 +180,7 @@ static inline void init_from_config() {
     printf("| Iterations: %d\n", iterations);
     printf("| Period: %d\n", period);
     printf("| Size: %d\n", size);
-    puts  ("+------*------+");    
+    puts  ("+------*------+");
 }
 
 // static inline double sec_deriv_x(int x, int y, double t) {
@@ -188,9 +213,9 @@ static inline void init_from_config() {
 //     for (i = 0; i < size * size; ++i) {
 //         int x = i / size;
 //         int y = i % size;
-//         grid[1][x][y] += dt * (heat(x, y, cur_time) + 
-//                     (a_squared * (sec_deriv_y(x, y, cur_time) + 
-//                     sec_deriv_x(x, y, cur_time))));
+//         grid[1][x][y] += dt * (heat(x, y, cur_time) +
+//                     (a_squared * (sec_deriv_y(x, y, cur_time) +
+//                      sec_deriv_x(x, y, cur_time))));
 //     }
 //     update_grid();
 //     cur_time += dt;
@@ -206,23 +231,12 @@ static inline void init_from_config() {
 //     }
 // }
 
-static inline void free_all() {
-    int i;
-    #pragma omp parallel for
-    for (i = 0; i < size; ++i) {
-        free(grid[0][i]);
-        free(grid[1][i]);
-    }
-    free(grid[0]);
-    free(grid[1]);
-}
-
 static inline void clean_dumps() {
     puts("> clean_dumps");
     DIR* dp;
     struct dirent* ep;
     char* path = "dump_files/";
-    
+
     dp = opendir (path);
     if (dp != NULL) {
         while ((ep = readdir (dp))) {
@@ -239,38 +253,6 @@ static inline void clean_dumps() {
         perror ("Couldn't open the directory");
     }
 }
-
-// static inline void dump_to_file(int cur_iteration) {
-//     printf("> dump_to_file #%d/%d\n", cur_iteration, iterations);
-//     assert(ceil(log10(cur_iteration)) < 10);
-
-//     char cur_file_name[30];
-//     char file_path[50];
-
-//     strcpy(file_path, "dump_files/");
-//     strcat(file_path, prefix);
-
-//     assert(period != 0);
-//     sprintf(cur_file_name, "_%03d", (int) cur_iteration / period);
-//     strcat(cur_file_name, ".txt");
-
-//     strcat(file_path, cur_file_name);
-
-//     FILE* f = fopen(file_path, "w");
-//     assert(f != NULL);
-
-//     fprintf(f, "%d\n", size);
-//     fprintf(f, "%d\n", cur_iteration);
-//     int i;
-
-//     fprintf(f, "%f", grid[0][0]);
-//     for (i = 1; i < size * size; ++i) {
-//         assert(size != 0);
-//         fprintf(f, " %f", grid[i / size][i % size]);
-//     }
-
-//     fclose(f);
-// }
 
 static inline int is_number(char* str) {
     int i;

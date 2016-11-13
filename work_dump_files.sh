@@ -1,6 +1,6 @@
 rm -rf images/* &&
 make &&
-./a.out &&
+mpiexec -n 3 a.out  &&
 ./tools/draw_plots_dump_files.py &&
 cd images &&
 ffmpeg -f image2 -pattern_type glob -framerate 12 -i '*.png' -s 400x400 foo.mp4 &&
