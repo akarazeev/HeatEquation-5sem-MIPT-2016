@@ -34,18 +34,18 @@ static inline double border4(int x, int y, double t) {
 static inline double border5(int x, int y, double t) {
     if (x >= 0 && x < size) {
         if (y > size) {
-            return grid[x][size-1];
+            return grid[side][x][size-1];
         } else if (y < 0) {
-            return grid[x][0];
+            return grid[side][x][0];
         } else {
-            return grid[x][y];
+            return grid[side][x][y];
         }
     } else if (x < 0) {
         assert(y >= 0 && y < size);
-        return grid[0][y];
+        return grid[side][0][y];
     } else if (x >= size) {
         assert(y >= 0 && y < size);
-        return grid[size-1][y];
+        return grid[side][size-1][y];
     } else {
         return 0;
     }

@@ -14,7 +14,7 @@ for fname in os.listdir(path_txt):
         with open(path_txt + fname, 'r') as f:
             # size, iteration, grid = [line for line in f]
             grid = [line for line in f][0]
-            size = 6
+            size = 600
             size = int(size)
             # iteration = int(iteration)
             # print(grid)
