@@ -15,7 +15,7 @@ for fname in os.listdir(path_txt):
         size = int(size)
         iteration = int(iteration)
         grid = np.array([float(x) for x in grid.split()])
-
+        
         plt.figure(frameon=False)
         plt.imshow(grid.reshape(size, size))
 
