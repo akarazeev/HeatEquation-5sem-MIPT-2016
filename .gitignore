@@ -1,12 +1,11 @@
+*/.ipynb_checkpoints/
 dump_files/
 downloads/
 images/
+.idea/
 
 *.out
 *.jpg
 
 CMakeLists.txt
-
 .DS_Store
-.idea/
-.ipynb_checkpoints/
