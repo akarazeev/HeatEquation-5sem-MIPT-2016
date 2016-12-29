@@ -1,10 +1,12 @@
 dump_files/
-src/2d_heat_equation.c
 downloads/
-.DS_Store
 images/
+
 *.out
 *.jpg
+
+CMakeLists.txt
+
+.DS_Store
 .idea/
 .ipynb_checkpoints/
-CMakeLists.txt
