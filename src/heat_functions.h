@@ -1,10 +1,11 @@
-//
-//  heat_functions.h
-//  HeatEquation
-//
-//  Created by <anton.karazeev@gmail.com> on 21/10/16. MIPT.
-//  Copyright © 2016 Anton Karazeev. All rights reserved.
-//
+/**
+ * heat_functions.h
+ * Heat Equation
+ *
+ *          2016. MIPT
+ * Created by <anton.karazeev@gmail.com> on 21/10/16.
+ *
+ */
 
 static inline double heat1(int x, int y, double t) {
     if (((x < 0.3*size && x > 0.1*size) || (x < 0.9*size && x > 0.7*size)) && (y <= 0.7*size && y >=0.3*size)) {

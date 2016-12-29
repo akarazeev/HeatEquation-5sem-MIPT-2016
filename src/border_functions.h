@@ -1,10 +1,11 @@
-//
-//  border_functions.h
-//  HeatEquation
-//
-//  Created by <anton.karazeev@gmail.com> on 21/10/16. MIPT.
-//  Copyright © 2016 Anton Karazeev. All rights reserved.
-//
+/**
+ * border_functions.h
+ * Heat Equation
+ *
+ *          2016. MIPT
+ * Created by <anton.karazeev@gmail.com> on 21/10/16.
+ *
+ */
 
 static inline double border1(int x, int y, double t) {
     if (y <= 0) {
@@ -46,6 +47,6 @@ static inline double border5(int x, int y, double t) {
         assert(y >= 0 && y < size);
         return grid[size-1][y];
     } else {
-        assert(0);
+        return 0;
     }
 }

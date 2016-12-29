@@ -1,13 +1,12 @@
-C = /usr/local/opt/llvm/bin/clang
-CFLAGS = -I/usr/local/opt/llvm/include -fopenmp
+# C = /usr/local/opt/llvm/bin/clang
+C = mpicc
+# CFLAGS = -I/usr/local/opt/llvm/include -fopenmp
+CFLAGS = -openmp
 LDFLAGS = -L/usr/local/opt/llvm/lib
 
 all:
 	$(C) $(CFLAGS) ./src/main.c $(LDFLAGS) -o a.out
 
-#
-# J4F:
-#
 #%.o: %.c %.h
 #    $(CC) $(CFLAGS) -c $< -o $@
 #
