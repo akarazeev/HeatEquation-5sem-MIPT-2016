@@ -28,7 +28,9 @@ double (*heat_functions[4]) (int x, int y, double t);
 
 int dx;
 int dy;
-int size = -1;
+// int size = -1;
+int size_x = -1;
+int size_y = -1;
 int period;
 int iterations;
 int border_number;
@@ -119,16 +121,18 @@ static inline void init_from_config() {
 
         FILE* f_init = fopen(init_file_path, "r");
         assert(f_init != NULL);
-        fscanf(f_init, "%d", &size);
+        // fscanf(f_init, "%d", &size);
+        fscanf(f_init, "%d", &size_x);
+        fscanf(f_init, "%d", &size_y);
 
         int i;
-        grid = malloc(size * sizeof(double*));
-        grid_old = malloc(size * sizeof(double*));
-        for (i = 0; i < size; ++i) {
-            grid[i] = malloc(size * sizeof(double));
-            grid_old[i] = malloc(size * sizeof(double));
+        grid = malloc(size_x * sizeof(double*));
+        grid_old = malloc(size_x * sizeof(double*));
+        for (i = 0; i < size_x; ++i) {
+            grid[i] = malloc(size_y * sizeof(double));
+            grid_old[i] = malloc(size_y * sizeof(double));
             int j;
-            for (j = 0; j < size; ++j) {
+            for (j = 0; j < size_y; ++j) {
                 double tmp;
                 fscanf(f_init, "%lf", &tmp);
                 grid[i][j] = tmp;
@@ -136,38 +140,39 @@ static inline void init_from_config() {
             }
         }
     } else {
-        puts("> fill_with_func");
-
-        size = atoi(init_file_name);
-        assert(size > 0);
-
-        int i;
-        grid = malloc(size * sizeof(double*));
-        grid_old = malloc(size * sizeof(double*));
-        for (i = 0; i < size; ++i) {
-            grid[i] = malloc(size * sizeof(double));
-            grid_old[i] = malloc(size * sizeof(double));
-            int j;
-            for (j = 0; j < size; ++j) {
-                grid[i][j] = init(i, j);
-                grid_old[i][j] = grid[i][j];
-            }
-        }
+        assert(0);
+        // puts("> fill_with_func");
+        //
+        // size = atoi(init_file_name);
+        // assert(size > 0);
+        //
+        // int i;
+        // grid = malloc(size * sizeof(double*));
+        // grid_old = malloc(size * sizeof(double*));
+        // for (i = 0; i < size; ++i) {
+        //     grid[i] = malloc(size * sizeof(double));
+        //     grid_old[i] = malloc(size * sizeof(double));
+        //     int j;
+        //     for (j = 0; j < size; ++j) {
+        //         grid[i][j] = init(i, j);
+        //         grid_old[i][j] = grid[i][j];
+        //     }
+        // }
     }
 
-    puts("+------*------+");
+    puts("+------*------+------*");
     printf("| Iterations: %d\n", iterations);
     printf("| Period: %d\n", period);
-    printf("| Size: %d\n", size);
-    puts("+------*------+");
+    printf("| Dimensions: %d x %d\n", size_x, size_y);
+    puts("+------*------+------*");
 }
 
 static inline double sec_deriv_x(int x, int y, double t) {
-    if (x + dx >= size) {
+    if (x + dx >= size_x) {
         assert(x - dx >= 0);
         return (border(x + dx, y, t) - (2.0 * grid_old[x][y]) + grid_old[x - dx][y]) / (2.0 * dx * dx);
     } else if (x - dx <= 0) {
-        assert(x + dx < size);
+        assert(x + dx < size_x);
         return (grid_old[x + dx][y] - (2.0 * grid_old[x][y]) + border(x - dx, y, t)) / (2.0 * dx * dx);
     } else {
         return (grid_old[x + dx][y] - (2.0 * grid_old[x][y]) + grid_old[x - dx][y]) / (2.0 * dx * dx);
@@ -175,11 +180,11 @@ static inline double sec_deriv_x(int x, int y, double t) {
 }
 
 static inline double sec_deriv_y(int x, int y, double t) {
-    if (y + dy >= size) {
+    if (y + dy >= size_y) {
         assert(y - dy >= 0);
         return (border(x, y + dy, t) - (2.0 * grid_old[x][y]) + grid_old[x][y - dy]) / (2.0 * dy * dy);
     } else if (y - dy <= 0) {
-        assert(y + dy < size);
+        assert(y + dy < size_y);
         return (grid_old[x][y + dy] - (2.0 * grid_old[x][y]) + border(x, y - dy, t)) / (2.0 * dy * dy);
     } else {
         return (grid_old[x][y + dy] - (2.0 * grid_old[x][y]) + grid_old[x][y - dy]) / (2.0 * dy * dy);
@@ -189,9 +194,9 @@ static inline double sec_deriv_y(int x, int y, double t) {
 static inline void next_age() {
     int i;
     #pragma omp parallel for
-    for (i = 0; i < size * size; ++i) {
-        int x = i / size;
-        int y = i % size;
+    for (i = 0; i < size_x * size_y; ++i) {
+        int x = i / size_y;
+        int y = i % size_y;
         grid[x][y] += dt * (heat(x, y, cur_time) +
                     (a_squared * (sec_deriv_y(x, y, cur_time) +
                     sec_deriv_x(x, y, cur_time))));
@@ -203,9 +208,9 @@ static inline void next_age() {
 static inline void update_grid() {
     int i;
     #pragma omp parallel for
-    for (i = 0; i < size * size; ++i) {
-        int x = i / size;
-        int y = i % size;
+    for (i = 0; i < size_x * size_y; ++i) {
+        int x = i / size_y;
+        int y = i % size_y;
         grid_old[x][y] = grid[x][y];
     }
 }
@@ -213,7 +218,7 @@ static inline void update_grid() {
 static inline void free_all() {
     int i;
     #pragma omp parallel for
-    for (i = 0; i < size; ++i) {
+    for (i = 0; i < size_x; ++i) {
         free(grid[i]);
         free(grid_old[i]);
     }
@@ -264,13 +269,15 @@ static inline void dump_to_file(int cur_iteration) {
     FILE* f = fopen(file_path, "w");
     assert(f != NULL);
 
-    fprintf(f, "%d\n", size);
+    // fprintf(f, "%d\n", size);
+    fprintf(f, "%d\n", size_x);
+    fprintf(f, "%d\n", size_y);
     fprintf(f, "%d\n", cur_iteration);
     int i;
 
     fprintf(f, "%f", grid[0][0]);
-    for (i = 1; i < size * size; ++i) {
-        fprintf(f, " %f", grid[i / size][i % size]);
+    for (i = 1; i < size_x * size_y; ++i) {
+        fprintf(f, " %f", grid[i / size_y][i % size_y]);
     }
 
     fclose(f);

@@ -8,4 +8,4 @@ images/
 *.jpg
 
 CMakeLists.txt
-.DS_Store
+*.DS_Store
